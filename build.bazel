@@ -1,0 +1,58 @@
+#
+#cc_library(
+#    name = "clickhouse_lib",
+#    srcs = select({
+#        "@io_bazel_rules_go//go/platform:linux": ["packaged/lib/linux-amd64/libclickhouse.a"],
+#        "@io_bazel_rules_go//go/platform:darwin_arm64": ["packaged/lib/darwin-aarch64/libclickhouse.a"],
+#        "//conditions:default": ["UNSUPPORTED_PLATFORM"],
+#    }),
+#    #    hdrs = glob(["packaged/include/**/*"]),
+#    #    includes = ["packaged/include"],
+#    #    strip_include_prefix = "packaged/include",
+#    visibility = ["//visibility:public"],
+#)
+
+cc_library(
+    name = "clickhouse-parser",
+    hdrs = glob(["include/**/*.h","include/**/*.hpp"]),
+    # hdrs = glob(["include/Parsers/**/*.h"]),
+    visibility = ["//visibility:public"],
+    includes = ["include"],
+    linkstatic=True,
+    strip_include_prefix = "include",
+
+    srcs = select({
+      # ":linux_x86_64": ["lib/linux-amd64/libclickhouse_parsers.a"],
+      "@platforms//os:osx": [
+          "lib/darwin-aarch64/libclickhouse_parsers.a",
+          # "lib/darwin-aarch64/libclickhouse_common_config.a",
+          # "lib/darwin-aarch64/libc.a",
+          "lib/darwin-aarch64/libcommon.a",
+          "lib/darwin-aarch64/libstring_utils.a"
+      ],
+      "//conditions:default": ["UNSUPPORTED_PLATFORM"],
+    }),
+)
+
+cc_binary(
+  name = "test",
+  srcs = ["test.cc"],
+  deps = [":clickhouse-parser"]
+)
+
+platform(
+    name = "linux_x86_64",
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+    ],
+)
+
+
+platform(
+    name = "darwin_arm64",
+    constraint_values = [
+        "@platforms//os:osx",
+        "@platforms//cpu:aarch64",
+    ],
+)
