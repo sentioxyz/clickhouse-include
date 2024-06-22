@@ -142,7 +142,6 @@ cc_library(
             "lib/darwin-aarch64/lib_cctz.a",
             "lib/darwin-aarch64/libtzdata.a"
       ],
-      "//conditions:default": ["UNSUPPORTED_PLATFORM"],
     }),
 )
 
